@@ -18,8 +18,7 @@ def HistogramMB(velocities,m,filename): #filename is a string containing the nam
     v=np.linspace(0,4)
     averageVelocity=np.sum(velocities)/len(velocities)
     #kT=(averageVelocity*averageVelocity*m/2) #Boltzmann constant times Temperature
-    v0=1
-    kT=v0*v0*m/2
+    kT=V0*V0*m/2
     mb=(m*v/kT)*np.exp(-(m*(v*v)/(2*kT))) #Maxwell-Boltzmann distribution
 
     #plotting
@@ -106,8 +105,8 @@ def problem2(N2,m0,n):
 def problem3(N3,m0,n,interval,start):
 
     #initialize mass array
-    masses3=np.full(N2,m0)
-    x=int(N2/2)
+    masses3=np.full(N3,m0)
+    x=int(N3/2)
     for i in range(x):
         masses3[x+i]=4*m0
 
@@ -159,7 +158,7 @@ def problem3(N3,m0,n,interval,start):
 
 
 
-problem1(2000,1,20000,5000,10000)
-#problem2(500,1,5000)
+#problem1(2000,1,20000,5000,10000)
+problem2(500,1,5000)
 
-#problem3(500,1,5000,100,0)
+problem3(500,1,5000,100,0)
