@@ -1,6 +1,9 @@
 from simulation import *
 from functions import *
 
+
+#NOTE TO SELF: might be more effetive to write a function that just gives the positions, since these take time to calculate
+
 def initParticlesForProjectileImpact(N,m0,r0,m,r,v0): #m0 is the mass of the small particles, N=number of small particles
     #v0=downward speed of projectile particle
     print("Initializing particle array...")
@@ -64,6 +67,8 @@ def problem4Visualization(N,n,interval,start,m0,r0,m,r,v0,RC):
         plotCraterFormation(d,r0,r)
     print("done")
 
+
+#NB SOMETIMES THE ENERGY INCREASES???????? by a very small factor but still...
 def craterSimulation(N,interval,m0,r0,m,r,v0,RC):
 
     #initialization
@@ -80,7 +85,35 @@ def craterSimulation(N,interval,m0,r0,m,r,v0,RC):
         Time = runSimulation(interval,events,parr,Time,RC) #run simulation and update time
     print("done")
     return parr
+
  
+def massCraterSize(masslist,filename,N,interval,m0,r0,r,v0,RC): #masslist is a list of masses to plot for #filename=name of file data is saved to
+    #initialize array
+    startParr=initParticlesForProjectileImpact(N,m0,r0,1,r,v0) #set m to 1, can change later
+    initialParr=startParr.copy() #saving initial particle array, only positions matter
+
+    file=open(filename,"w") #file to write to
+
+    print(masslist)
+    for mass in masslist:
+
+        #initialization
+        parr=startParr
+        parr[N,M]=mass
+        print(parr[N,M])
+        initialEnergy=averageKineticEnergy(parr[:N-1])+avrgEnergyP(parr[N]) #ground particles start with zero kinetic energy!!
+        events=firstCollisions(parr)
+        Time=0.0 #set start time to zero
+
+        #run simulation
+        print("start")
+        while((averageKineticEnergy(parr[:N-1])+avrgEnergyP(parr[N]))>=0.1*initialEnergy): #continue until 10% or less than initial energy
+            #print((averageKineticEnergy(parr[:N-1])+avrgEnergyP(parr[N]))/initialEnergy)
+            Time = runSimulation(interval,events,parr,Time,RC) #run simulation and update time
+        crater=craterSize(initialParr,parr)
+        file.write(str(crater)) #writing data to file
+    file.close()
+
 
     
 
@@ -101,4 +134,8 @@ RC=0.5
 
 #problem4Visualization(N,n,interval,start,m0,r0,m,r,v0,RC)
 
-craterSimulation(N,interval,m0,r0*0.9,m,r,v0,RC)
+#craterSimulation(N,interval,m0,r0*0.9,m,r,v0,RC)
+
+massList=np.linspace(m0,40*m0,10)
+
+massCraterSize(massList,"massVSCraterSize.txt",N,interval,m0,r0,r,v0,RC)

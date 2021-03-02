@@ -48,3 +48,11 @@ def avrgEnergyP(p): #if p is only one particle
     velocitySquared=p[VX]*p[VX]+p[VY]*p[VY]
     kineticEnergy=velocitySquared*0.5*p[M]
     return kineticEnergy
+
+def craterSize(initialParr,Parr):
+    stillParticles=0 #for counting
+    N=len(Parr) #number of particles
+    for i in range(N): #counting how many particles havent moved
+        if (initialParr[i,X]==Parr[i,X] and initialParr[i,Y]==Parr[i,Y]):
+            stillParticles+=1
+    return (N-stillParticles)/N #percentage of particles that are part of the crater
