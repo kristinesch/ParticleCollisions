@@ -1,43 +1,9 @@
 from simulation import *  
+from functions import *
 
 #average collision number=number of collisions/number of particles
 
-
-def getVelocities(Parr):
-    velocities=[]
-    for p in Parr:
-        velocities.append(np.sqrt(p[VX]*p[VX]+p[VY]*p[VY]))
-    return velocities
-
-def histogram(velocities):
-    plt.hist(velocities,bins=101,density=True)
-
-
-#NB 2 degrees of freedom!!!!!!!!!!!!!!!!!!
-def HistogramMB(velocities,m,filename): #filename is a string containing the name to save the file as
-    v=np.linspace(0,4)
-    averageVelocity=np.sum(velocities)/len(velocities)
-    #kT=(averageVelocity*averageVelocity*m/2) #Boltzmann constant times Temperature
-    kT=V0*V0*m/2
-    mb=(m*v/kT)*np.exp(-(m*(v*v)/(2*kT))) #Maxwell-Boltzmann distribution
-
-    #plotting
-    fig,ax=plt.subplots(1,1)
-    fig.suptitle("Speed distribution")
-    ax.set_xlabel("Speed")
-    ax.set_ylabel("Number of particles")
-    ax.hist(velocities,bins=51,density=True)
-    ax.plot(v,mb)
-    fig.savefig(filename)
-    plt.show()
-    return averageVelocity
-
-#returns average kinetic energy and velocity for the particles in the input array
-def averageKineticEnergyAndVelocity(parr): #assumes same mass for whole array
-    velocities=getVelocities(parr)
-    averageVelocity=np.sum(velocities)/len(velocities)
-    kineticEnergy=averageVelocity*averageVelocity*0.5*parr[1,M]
-    return kineticEnergy, averageVelocity
+RC=1
 
 
 """PROBLEM 1"""
@@ -51,7 +17,7 @@ def problem1(N1,m0,n,interval,start):
     parr1=initParticleArray(N1,masses1)
 
     #run simulation
-    parrData=simulationData(parr1,n,interval,start)
+    parrData=simulationData(parr1,n,interval,start,RC)
 
     #Get velocity data, and plot histogram with Maxwell-Boltzmann distribution
     for parr in parrData: #add velocity data to list
@@ -82,7 +48,7 @@ def problem2(N2,m0,n):
     histogram(initialVelocities)
 
     #run simulation
-    finalParr=simulation(particleArray2,n)
+    finalParr=simulation(particleArray2,n,RC)
 
     #Get arrays corresponding to the light and heavy particles
     Parrm0=finalParr[:x]
@@ -119,7 +85,7 @@ def problem3(N3,m0,n,interval,start):
     #initialize array
     particleArray3=initParticleArray(N3,masses3)
     #run simulation and collect data
-    data=simulationData(particleArray3,n,interval,start)
+    data=simulationData(particleArray3,n,interval,start,RC)
 
     #calculate average velocity and kinetic energy and save to lists
     for parr in data:

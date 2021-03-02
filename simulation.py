@@ -38,7 +38,7 @@ CCJ=4 #collision count of particle 2
 #PL=5 #particle list: list over all other particles that have registered a collision with this particle REMOVE?
 
 """constants""" #NOTE: might change into parameters in the functions...
-RC=1 #restitutuion coefficient (degree of inelasticity)
+RC=0.5  #restitutuion coefficient (degree of inelasticity)
 Xmin=0
 Xmax=1  #max. x-value of position
 Ymin=0
@@ -104,7 +104,8 @@ def initParticleArray(N,masses,xmin=0,xmax=1,ymin=0,ymax=1): #masses is an array
 #plotting the particle positions (used for testing)
 def plotParticlePositions(parr):
     plt.axis([Xmin,Xmax,Ymin,Ymax])
-    plt.plot(parr[:,X],parr[:,Y],"ro",s=5)
+    plt.plot(parr[:,X],parr[:,Y],"ro")
+    plt.show()
 
 #used for testing
 def plotPositionsAndVelocities(parr):
@@ -128,7 +129,7 @@ def moveForwardInTime(parr,dt):
 #updating the velocity values after collision
 #the input parr is the particle array
 
-def verticalCollision(parr,i,dt): #i=particle index, dt = remaining time until the collision
+def verticalCollision(parr,i,dt,RC): #i=particle index, dt = remaining time until the collision
     moveForwardInTime(parr,dt)
     #updating velocities
     parr[i,VX]=-RC*parr[i,VX]
@@ -136,7 +137,7 @@ def verticalCollision(parr,i,dt): #i=particle index, dt = remaining time until t
     #update collision count
     parr[i,C]+=1
 
-def horizontalCollision(parr,i,dt): 
+def horizontalCollision(parr,i,dt,RC): 
     moveForwardInTime(parr,dt)
     parr[i,VX]=RC*parr[i,VX]
     parr[i,VY]=-RC*parr[i,VY]
@@ -209,7 +210,7 @@ def particlesColTime(i,j,parr,events,time): #p1 and p2 is the index of the parti
 
 
 
-def particleCollision(parr,i,j,dt):  #i and j are particle indeces
+def particleCollision(parr,i,j,dt,RC):  #i and j are particle indeces
     #BEFORE collision:
     vi=[parr[i,VX],parr[i,VY]] #saving original velocity!
     vj=[parr[j,VX],parr[j,VY]]
@@ -265,7 +266,7 @@ def nextCollisions(parr,events,i,time): #calculating the next collisions for par
 
 """LOOP"""
 
-def runSimulation(n,events,parr, t0): #n is the number of valid iterations/collisions, t0=start time
+def runSimulation(n,events,parr, t0,RC): #n is the number of valid iterations/collisions, t0=start time
     k=1 #for counting
     Time=t0 #current time
     while k<n:
@@ -278,21 +279,21 @@ def runSimulation(n,events,parr, t0): #n is the number of valid iterations/colli
         if (parr[cc[I],C]==cc[CCI]): #if valid for 1st particle
 
             if (cc[J]==-2): #if collision with vertical wall
-                verticalCollision(parr,cc[I],dt) 
+                verticalCollision(parr,cc[I],dt,RC) 
                 Time=CollisionTime #updating time
                 nextCollisions(parr,events,cc[I],CollisionTime) #calculate new collisions for the colliding particle
                 k+=1
                 #print("Collision number: ",k," Time: ",Time,"\n")
 
             elif (cc[J]==-1): #if collision with horizontal wall
-                horizontalCollision(parr,cc[I],dt)
+                horizontalCollision(parr,cc[I],dt,RC)
                 Time=CollisionTime #updating time
                 nextCollisions(parr,events,cc[I],CollisionTime) #calculate new collisions for the colliding particle:
                 k+=1
                 #print("Collision number: ",k," Time: ",Time,"\n")
 
             elif (parr[cc[J],C]==cc[CCJ]): #if valid for second particle
-                    particleCollision(parr,cc[I],cc[J],dt)
+                    particleCollision(parr,cc[I],cc[J],dt,RC)
                     nextCollisions(parr,events,cc[J],CollisionTime) #calculate new next collisions
                     Time=CollisionTime #updating time
                     nextCollisions(parr,events,cc[I],CollisionTime) #calculate new collisions for the colliding particle
@@ -304,67 +305,17 @@ def runSimulation(n,events,parr, t0): #n is the number of valid iterations/colli
             
     return Time     #return time at the end of the simulation    
 
-            
-#TRYING TO FIND AN ERROR
-def runMoreAccurateSimulation(n,events,parr, t0): #n is the number of valid iterations/collisions, t0=start time
-    k=1 #for counting
-    Time=t0 #current time
-    N=len(parr)
-    while k<n:
-        #first let the first valid collision happen:
-        #pop removes the event from the event list
-        cc=heapq.heappop(events) # cc = currentCollision
-        CollisionTime=cc[Dt] #DT=time+dt
-        dt=CollisionTime-Time #time until next collision
-
-        if (parr[cc[I],C]==cc[CCI]): #if valid for 1st particle
-
-            if (cc[J]==-2): #if collision with vertical wall
-                verticalCollision(parr,cc[I],dt) 
-                Time=CollisionTime #updating time
-                #nextCollisions(parr,events,cc[I],CollisionTime) #calculate new collisions for the colliding particle
-                k+=1
-                #print("Collision number: ",k," Time: ",Time,"\n")
-                for i in range(N):
-                    nextCollisions(parr,events,i,CollisionTime)
-
-            elif (cc[J]==-1): #if collision with horizontal wall
-                horizontalCollision(parr,cc[I],dt)
-                Time=CollisionTime #updating time
-                #nextCollisions(parr,events,cc[I],CollisionTime) #calculate new collisions for the colliding particle:
-                k+=1
-                #print("Collision number: ",k," Time: ",Time,"\n")
-                for i in range(N):
-                    nextCollisions(parr,events,i,CollisionTime)
-
-            elif (parr[cc[J],C]==cc[CCJ]): #if valid for second particle
-                    particleCollision(parr,cc[I],cc[J],dt)
-                    #nextCollisions(parr,events,cc[J],CollisionTime) #calculate new next collisions
-                    Time=CollisionTime #updating time
-                    #nextCollisions(parr,events,cc[I],CollisionTime) #calculate new collisions for the colliding particle
-                    k+=1
-                    #print("Collision number: ",k," Time: ",Time,"\n")
-                    for i in range(N):
-                        nextCollisions(parr,events,i,CollisionTime)
-
-            if (k%1000==0): #just to keep track of how much time is left
-                print("collision number",k)
-            
-            
-            
-    return Time     #return time at the end of the simulation    
-
-            
+                     
 
 
-def simulation(particleArray,n): #particles, number of iterations in simulation
+def simulation(particleArray,n,RC): #particles, number of iterations in simulation
     eventQueue=firstCollisions(particleArray)
     #plotPositionsAndVelocities(parrTest)
-    runSimulation(n,eventQueue,particleArray,0)
+    runSimulation(n,eventQueue,particleArray,0,RC)
     #plotPositionsAndVelocities(parrTest)
     return particleArray
 
-def simulationData(particleArray,n,interval,start): #start=number of collisions before starting sampling, interval=number of collisions between sampling
+def simulationData(particleArray,n,interval,start,RC): #start=number of collisions before starting sampling, interval=number of collisions between sampling
     eventQueue=firstCollisions(particleArray)
     data=[]
     print("start")
@@ -372,7 +323,7 @@ def simulationData(particleArray,n,interval,start): #start=number of collisions 
         data.append(particleArray.copy())
     Time=0.0 #set start time to zero
     for i in range(int(n/interval)):
-        Time = runSimulation(interval,eventQueue,particleArray, Time) #run simulation and update time
+        Time = runSimulation(interval,eventQueue,particleArray, Time,RC) #run simulation and update time
         if (i*interval>=start): #save data
             data.append(particleArray.copy()) 
         print(i*100*interval/n,"%")
