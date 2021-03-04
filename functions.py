@@ -1,18 +1,20 @@
 import numpy as np
 from simulation import *
 
+
+#get the absoute values of the velocity for each particle in Parr
 def getVelocities(Parr):
     velocities=[]
     for p in Parr:
         velocities.append(np.sqrt(p[VX]*p[VX]+p[VY]*p[VY]))
     return velocities
 
-
+#plotting histogram of velocities
 def histogram(velocities):
     plt.hist(velocities,bins=101,density=True)
 
 
-#NB 2 degrees of freedom!!!!!!!!!!!!!!!!!!
+#NB 2 degrees 
 def HistogramMB(velocities,m,filename): #filename is a string containing the name to save the file as
     v=np.linspace(0,4)
     averageVelocity=np.sum(velocities)/len(velocities)
@@ -27,6 +29,7 @@ def HistogramMB(velocities,m,filename): #filename is a string containing the nam
     ax.set_ylabel("Number of particles")
     ax.hist(velocities,bins=51,density=True)
     ax.plot(v,mb)
+    plt.tight_layout()
     fig.savefig(filename)
     plt.show()
     return averageVelocity
@@ -38,13 +41,14 @@ def averageKineticEnergyAndVelocity(parr): #assumes same mass for whole array
     kineticEnergy=averageVelocity*averageVelocity*0.5*parr[1,M]
     return kineticEnergy, averageVelocity
 
-
+"""
 #Delete?
 def averageKineticEnergy(parr):
     velocities=getVelocities(parr)
     averageVelocity=np.sum(velocities)/len(velocities)
     kineticEnergy=averageVelocity*averageVelocity*0.5*parr[1,M]
     return kineticEnergy
+"""
 
 
 def totKinEnergy(parr):

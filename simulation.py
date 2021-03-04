@@ -9,10 +9,6 @@ from numba import jit
 #%load_ext line_profiler
 random.seed(1)
 
-
-#NOTE TO SELF: should probably calculate new collisions for ALL particles after every collision?
-#or make some kind of list to keep track of which particles have saved a collision with each current particle...
-
 """Colission count:
 The first element for each particle list is the particles current collision count
 Update the particles collision count for every collision
@@ -177,25 +173,19 @@ def nextHorizontalCollision(parr,i,events,time):
  
 
 
-#GANSKE JALLA Å BARE TA UT DELER AV FUNKSJONEN FOR Å JITTE DE MEN WHATEVER
 
+#optimalize calculation speed
 @jit(nopython = True)
 def computeStuff(i,j,parr):
-    Rij=parr[i,R]+parr[j,R] #radiuses added together??
+    Rij=parr[i,R]+parr[j,R] #radiuses added together
     deltaX=np.array([(parr[j,X]-parr[i,X]),(parr[j,Y]-parr[i,Y])])
-    deltaV=np.array([(parr[j,VX]-parr[i,VX]),(parr[j,VY]-parr[i,VY])])
+    deltaV=np.array([(parr[j,VX]-parr[i,VX]),(parr[j,VY]-parr[i,VY])]) #calculation as given in problem text
     VdotX=(np.dot(deltaV,deltaX))
     d=(VdotX)*(VdotX)-(np.dot(deltaV,deltaV))*((np.dot(deltaX,deltaX))-Rij*Rij)
-    return deltaX,deltaV,d,VdotX
+    return deltaX,deltaV,d,VdotX 
 
-"""
-@jit(nopython = True)
-def calculateDt(deltaV,deltaX,d):
-    return -(np.dot(deltaV,deltaX)+np.sqrt(d))/np.dot(deltaV,deltaV)
-    """
 
 #@jit(nopython = True)
-#FEIL svar når partiklene er inni hverandre
 def particlesColTime(i,j,parr,events,time): #p1 and p2 is the index of the particles rows in parr 
     deltaX, deltaV, d,VdotX=computeStuff(i,j,parr)
 
@@ -207,8 +197,6 @@ def particlesColTime(i,j,parr,events,time): #p1 and p2 is the index of the parti
         e=[deltaT+time,i,j,parr[i,C],parr[j,C]]  #last 2 entries are the current collisioncount for particles i and
         heapq.heappush(events,e)  #add event to heapq
 
-        #(parr[i,PL]).append(j)
-        #(parr[j, PL]).append(i)   #REMOVE??
 
 
 
@@ -285,14 +273,12 @@ def runSimulation(n,events,parr, t0,RC): #n is the number of valid iterations/co
                 Time=CollisionTime #updating time
                 nextCollisions(parr,events,cc[I],CollisionTime) #calculate new collisions for the colliding particle
                 k+=1
-                #print("Collision number: ",k," Time: ",Time,"\n")
 
             elif (cc[J]==-1): #if collision with horizontal wall
                 horizontalCollision(parr,cc[I],dt,RC)
                 Time=CollisionTime #updating time
                 nextCollisions(parr,events,cc[I],CollisionTime) #calculate new collisions for the colliding particle:
                 k+=1
-                #print("Collision number: ",k," Time: ",Time,"\n")
 
             elif (parr[cc[J],C]==cc[CCJ]): #if valid for second particle
                     particleCollision(parr,cc[I],cc[J],dt,RC)
@@ -300,28 +286,26 @@ def runSimulation(n,events,parr, t0,RC): #n is the number of valid iterations/co
                     Time=CollisionTime #updating time
                     nextCollisions(parr,events,cc[I],CollisionTime) #calculate new collisions for the colliding particle
                     k+=1
-                    #print("Collision number: ",k," Time: ",Time,"\n")
 
             if (k%1000==0): #just to keep track of how much time is left
                 print("collision number",k)
             
-    return Time     #return time at the end of the simulation    
+    return Time     #return current time at the end of the simulation    
 
                      
 
-
+#just runs the simulation for a given particle array
 def simulation(particleArray,n,RC): #particles, number of iterations in simulation
     eventQueue=firstCollisions(particleArray)
-    #plotPositionsAndVelocities(parrTest)
     runSimulation(n,eventQueue,particleArray,0,RC)
-    #plotPositionsAndVelocities(parrTest)
     return particleArray
 
+#runs the simulation for a given particle array, but saves data at given interval
 def simulationData(particleArray,n,interval,start,RC): #start=number of collisions before starting sampling, interval=number of collisions between sampling
     eventQueue=firstCollisions(particleArray)
     data=[]
     print("start")
-    if (start==0):
+    if (start==0): #copy initial array only if start of sampling set to zero
         data.append(particleArray.copy())
     Time=0.0 #set start time to zero
     for i in range(int(n/interval)+1):
@@ -329,7 +313,6 @@ def simulationData(particleArray,n,interval,start,RC): #start=number of collisio
         if (i*interval>=start): #save data
             print("data saved")
             data.append(particleArray.copy()) 
-        print(i*100*interval/n,"%")
     return data
 
 
