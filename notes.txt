@@ -1,0 +1,9 @@
+Problems to fix:
+
+Energy stops at 14% ish
+
+To do:
+How to know if the system is at e
+Plotting function for p4
+Make nice plots for p1,p2 and p3
+Save the plots that should be used in the report

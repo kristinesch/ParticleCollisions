@@ -53,9 +53,12 @@ def plotCraterFormation(parr,r0,r):
     groundParticles=parr[:N-1]
     #print(groundParticles)
     projectile=parr[N-1]
-    plt.axis([Xmin,Xmax,Ymin,Ymax])
-    plt.scatter(groundParticles[:,X],groundParticles[:,Y],c="b")
-    plt.scatter(projectile[X],projectile[Y],c="r",s=r*r*500*500)
+
+    fig,ax=plt.subplots(1,1)
+    ax.axis([Xmin,Xmax,Ymin,Ymax])
+    ax.scatter(groundParticles[:,X],groundParticles[:,Y],c="b")
+    ax.scatter(projectile[X],projectile[Y],c="r",s=r*r*500*500)
+    fig.savefig("p4Visualization")
     plt.show()
 
 
@@ -68,9 +71,49 @@ def problem4Visualization(N,n,interval,start,m0,r0,m,r,v0,RC):
         plotCraterFormation(d,r0,r)
     print("done")
 
+def craterVisualization(parr,n,interval,start,RC):
+    # Xmin=0
+    # Xmax=1
+    # Ymin=0
+    # Ymax=1
+    #parr=initParticlesForProjectileImpact(N,m0,r0,m,r,v0)
+    data=simulationData(parr,n,interval,start,RC)
+    fig,ax=plt.subplots(2,2)
+
+    parr1=data[0]
+    groundParticles1=parr1[:N-1]
+    projectile1=parr1[N-1]
+    ax[0,0].axis([Xmin,Xmax,Ymin,Ymax])
+    ax[0,0].scatter(groundParticles1[:,X],groundParticles1[:,Y],c="b",s=0.01)
+    ax[0,0].scatter(projectile1[X],projectile1[Y],c="r",s=r*r*50*50)
+
+    parr2=data[1]
+    groundParticles2=parr2[:N-1]
+    projectile2=parr2[N-1]
+    ax[0,1].axis([Xmin,Xmax,Ymin,Ymax])
+    ax[0,1].scatter(groundParticles2[:,X],groundParticles2[:,Y],c="b",s=0.01)
+    ax[0,1].scatter(projectile2[X],projectile2[Y],c="r",s=r*r*50*50)
+
+    parr3=data[2]
+    groundParticles3=parr3[:N-1]
+    projectile3=parr3[N-1]
+    ax[1,0].axis([Xmin,Xmax,Ymin,Ymax])
+    ax[1,0].scatter(groundParticles3[:,X],groundParticles3[:,Y],c="b",s=0.01)
+    ax[1,0].scatter(projectile3[X],projectile3[Y],c="r",s=r*r*50*50)
+
+    parr4=data[3]
+    groundParticles4=parr4[:N-1]
+    projectile4=parr4[N-1]
+    ax[1,1].axis([Xmin,Xmax,Ymin,Ymax])
+    ax[1,1].scatter(groundParticles4[:,X],groundParticles4[:,Y],c="b",s=0.01)
+    ax[1,1].scatter(projectile4[X],projectile4[Y],c="r",s=r*r*50*50)
+
+    fig.savefig("p4Visualization")
+    plt.show()
 
 
-def craterSimulation(parr,N,interval,m0,r0,m,r,v0,RC):
+
+def craterSimulation(parr,N,interval,RC):
 
     #initialization
     initialEnergy=totKinEnergy(parr) #ground particles start with zero kinetic energy!!
@@ -93,13 +136,11 @@ def craterSimulation(parr,N,interval,m0,r0,m,r,v0,RC):
 
 
 
-def massCraterSize(initialParr,masslist,filename,N,interval,m0,r0,r,v0,RC): #masslist is a list of masses to plot for #filename=name of file data is saved to
+def massCraterSize(initialParr,masslist,N,interval,RC): #masslist is a list of masses to plot for #filename=name of file data is saved to
     #initialize array
     #initialParr=initParticlesForProjectileImpact(N,m0,r0,1,r,v0) #set m to 1, can change later
-
-    file=open(filename,"w") #file to write to
-
     print(masslist)
+    craterData=[]
     for mass in masslist:
 
         #initialization
@@ -111,32 +152,31 @@ def massCraterSize(initialParr,masslist,filename,N,interval,m0,r0,r,v0,RC): #mas
         events=firstCollisions(parr)
         Time=0.0 #set start time to zero
 
-        newInterval=int(interval*(mass/m0))
+        newInterval=int(interval*(mass/m0)) #to make more appropriate intervals
         print("interval",newInterval)
+
         #run simulation
         print("start")
         while((totKinEnergy(parr))>=0.1*initialEnergy): #continue until 10% or less than initial energy
             print(totKinEnergy(parr)/(initialEnergy))
             Time = runSimulation(newInterval,events,parr,Time,RC) #run simulation and update time
-            
-
-        crater=craterSize(initialParr,parr)
-        file.write(str(crater)) #writing data to file
-        print("data saved")
-    file.close()
+        crater=craterSize(initialParr,parr) #calculate crater size
+        craterData.append(crater) 
+    npCrater=np.array(craterData)
+    np.save("massCraterData.npy",masslist,npCrater) #save data to binary file
 
 
     
 
 
 """values for the different parameters"""
-N=1000 #number of ground particles
-n=10000 #number of collisions in simulation
-interval=100 #interval between data sampling
+N=500 #number of ground particles
+n=8000 #number of collisions in simulation
+interval=10 #interval between data sampling
 start=0 #start of data sampling
-m0=1 #mass of ground particles
+m0=1#mass of ground particles
 r0=np.sqrt(1/(N*4*math.pi)) #radius of mass particles
-m=m0*15 #mass of projectile partile (as stated in problem text)
+m=m0*10 #mass of projectile partile (as stated in problem text)
 r=r0*5 #radius of projectile particle
 v0=5 #initial velocity of projectile particle
 RC=0.5
@@ -148,7 +188,7 @@ RC=0.5
 #0.9 for faster init!!!!!
 
 
-#massList=np.linspace(m0,40*m0,10)
+massList=np.linspace(m0,30*m0,5)
 
 """Initializing particle array"""
 #parr=initParticlesForProjectileImpact(N,m0,r0,m,r,v0)
@@ -156,11 +196,18 @@ RC=0.5
 
 initParticleArray=np.load("particleArray.npy")
 print("ok")
+newArray=initParticleArray.copy()
+newArray[N,M]=m
 
-craterSimulation(initParticleArray,N,interval,m0,r0,m,r,v0,RC)
 
 
-#massCraterSize(initialParr,massList,"massVSCraterSize.txt",N,interval,m0,r0*0.9,r,v0,RC)
+#craterSimulation(newArray,N,100,RC)
+
+craterVisualization(initParticleArray,n,2000,0,RC)
+
+#massCraterSize(initParticleArray,massList,N,interval,RC)
+
+#plotParameterVsCraterSize("MassCrater.npy","Projectile Mass","MassVsCraterPlot")
 
 
 #code for plotting for different parameters: take parr as input

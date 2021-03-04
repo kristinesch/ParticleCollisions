@@ -3,33 +3,34 @@ from functions import *
 
 #average collision number=number of collisions/number of particles
 
-RC=1
+
 
 
 """PROBLEM 1"""
 #N=number of particles, n=number of iterations,m0=mass, interval=number of collisions between data sampling
-def problem1(N1,m0,n,interval,start):
+def problem1(N1,m0,n,interval,start,rc,r0,v0):
+    rc=1
     velocities=[]
     #initialize mass array
     masses1=np.full(N1,m0)
 
     #initialize particle array
-    parr1=initParticleArray(N1,masses1)
+    parr1=initParticleArray(N1,masses1,r0,m0,v0,rc)
 
     #run simulation
-    parrData=simulationData(parr1,n,interval,start,RC)
+    parrData=simulationData(parr1,n,interval,start,rc)
 
     #Get velocity data, and plot histogram with Maxwell-Boltzmann distribution
     for parr in parrData: #add velocity data to list
         velocities.extend(getVelocities(parr))
-
+    print(velocities)
     HistogramMB(velocities,m0,"problem1")
         
 
 
 """PROBLEM 2"""
 
-def problem2(N2,m0,n):
+def problem2(N2,m0,n,r0,v0,rc):
     N2=1000
     m0=1
     n=10000
@@ -41,7 +42,7 @@ def problem2(N2,m0,n):
         masses2[x+i]=4*m0
 
     #Initialize particle array
-    particleArray2=initParticleArray(N2,masses2)
+    particleArray2=initParticleArray(N2,masses2,r0,m0,v0,rc)
 
     #initial plot
     initialVelocities=getVelocities(particleArray2)
@@ -68,7 +69,7 @@ def problem2(N2,m0,n):
 
     
 
-def problem3(N3,m0,n,interval,start):
+def problem3(N3,m0,n,interval,start,r0,v0,rc):
 
     #initialize mass array
     masses3=np.full(N3,m0)
@@ -83,7 +84,7 @@ def problem3(N3,m0,n,interval,start):
     vel4m0=[]
 
     #initialize array
-    particleArray3=initParticleArray(N3,masses3)
+    particleArray3=initParticleArray(N3,masses3,r0,m0,v0,rc)
     #run simulation and collect data
     data=simulationData(particleArray3,n,interval,start,RC)
 
@@ -123,8 +124,22 @@ def problem3(N3,m0,n,interval,start):
 
 
 
+N1=2000
+m0=1
+n1=20000
+interval1=5000
+start1=10000
+rc=1
+r0=0.001 #must be large enough so that particle particle collisions happen often enough???
+v0=1
+
+
+problem1(N1,m0,n1,interval1,start1,rc,r0,v0)
+#problem2(N2,m0,n,r0,v0,rc)
+#problem3(N3,m0,n,interval,start,r0,v0,rc)
+
 
 #problem1(2000,1,20000,5000,10000)
-problem2(500,1,5000)
+#problem2(500,1,5000)
 
-problem3(500,1,5000,100,0)
+#problem3(500,1,5000,100,0)

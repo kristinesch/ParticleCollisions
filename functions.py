@@ -60,11 +60,12 @@ def craterSize(initialParr,Parr):
             stillParticles+=1
     return (N-stillParticles)/N #percentage of particles that are part of the crater
 
+
 def plotParameterVsCraterSize(filename,parameter,figurename): #plots data from file "filename.txt". parameter=name of parameter(string) #figurename=name of file figure is saved to
+    #loading data
     data=np.load(filename) #filename is a saved 2d numpy array
 
-
-"""
+    #plotting
     fig, ax=plt.subplots(1,1)
     ax.plot(data[0],data[1])
     ax.suptitle("Crater size vs "+parameter)
@@ -72,5 +73,5 @@ def plotParameterVsCraterSize(filename,parameter,figurename): #plots data from f
     ax.set_ylabel(parameter)
     fig.savefig(figurename)
     plt.show()
-"""
+
 

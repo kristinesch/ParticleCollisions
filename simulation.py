@@ -37,16 +37,6 @@ CCI=3 #collision count of particle 1
 CCJ=4 #collision count of particle 2
 #PL=5 #particle list: list over all other particles that have registered a collision with this particle REMOVE?
 
-"""constants""" #NOTE: might change into parameters in the functions...
-RC=0.5  #restitutuion coefficient (degree of inelasticity)
-Xmin=0
-Xmax=1  #max. x-value of position
-Ymin=0
-Ymax=1
-r=0.001 #Should be much less than 1!!! 
-m=1  #just picked some values for r and m. Might change them later
-V0=1 #Absolute value of velocity
-
 
 """Particles"""
 #Saved in array, one column corresponds to one particle
@@ -61,12 +51,24 @@ R=5 #radius
 M=6 #mass
 
 
+#REMOVE?????????????
+"""constants""" #NOTE: might change into parameters in the functions...
+RC=1  #restitution coefficient (degree of inelasticity)
+Xmin=0
+Xmax=1  #max. x-value of position
+Ymin=0
+Ymax=1
+r=0.0001 #Should be much less than 1!!! 
+m=1  #just picked some values for r and m. Might change them later
+V0=1 #Absolute value of velocity
+
+
 """Iitialization of particle array"""
 #N is the number of particles, the other arguments are the max. and min values for the position coords
 #!!!!!!Assumes equal radii for all particles!!!!!!!!!!
 
 #initializes the particle array, with random posistions
-def initParticleArray(N,masses,xmin=0,xmax=1,ymin=0,ymax=1): #masses is an array of masses
+def initParticleArray(N,masses,r,m,v0,rc,xmin=0,xmax=1,ymin=0,ymax=1): #masses is an array of masses
     print("Initializing particle array...")
     parr=np.zeros((N,7))
     occupiedPositions=[] #list of occupied positions
@@ -322,9 +324,10 @@ def simulationData(particleArray,n,interval,start,RC): #start=number of collisio
     if (start==0):
         data.append(particleArray.copy())
     Time=0.0 #set start time to zero
-    for i in range(int(n/interval)):
+    for i in range(int(n/interval)+1):
         Time = runSimulation(interval,eventQueue,particleArray, Time,RC) #run simulation and update time
         if (i*interval>=start): #save data
+            print("data saved")
             data.append(particleArray.copy()) 
         print(i*100*interval/n,"%")
     return data
