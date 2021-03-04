@@ -38,16 +38,19 @@ def averageKineticEnergyAndVelocity(parr): #assumes same mass for whole array
     kineticEnergy=averageVelocity*averageVelocity*0.5*parr[1,M]
     return kineticEnergy, averageVelocity
 
+
+#Delete?
 def averageKineticEnergy(parr):
     velocities=getVelocities(parr)
     averageVelocity=np.sum(velocities)/len(velocities)
     kineticEnergy=averageVelocity*averageVelocity*0.5*parr[1,M]
     return kineticEnergy
 
-def avrgEnergyP(p): #if p is only one particle
-    velocitySquared=p[VX]*p[VX]+p[VY]*p[VY]
-    kineticEnergy=velocitySquared*0.5*p[M]
-    return kineticEnergy
+
+def totKinEnergy(parr):
+    kineticEnergy=(parr[:,VX]*parr[:,VX]+parr[:,VY]*parr[:,VY])*parr[:,M]*0.5
+    return np.sum(kineticEnergy)
+    
 
 def craterSize(initialParr,Parr):
     stillParticles=0 #for counting
@@ -56,3 +59,18 @@ def craterSize(initialParr,Parr):
         if (initialParr[i,X]==Parr[i,X] and initialParr[i,Y]==Parr[i,Y]):
             stillParticles+=1
     return (N-stillParticles)/N #percentage of particles that are part of the crater
+
+def plotParameterVsCraterSize(filename,parameter,figurename): #plots data from file "filename.txt". parameter=name of parameter(string) #figurename=name of file figure is saved to
+    data=np.load(filename) #filename is a saved 2d numpy array
+
+
+"""
+    fig, ax=plt.subplots(1,1)
+    ax.plot(data[0],data[1])
+    ax.suptitle("Crater size vs "+parameter)
+    ax.set_xlabel("Crater size")
+    ax.set_ylabel(parameter)
+    fig.savefig(figurename)
+    plt.show()
+"""
+

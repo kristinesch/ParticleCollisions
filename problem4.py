@@ -46,6 +46,7 @@ def initParticlesForProjectileImpact(N,m0,r0,m,r,v0): #m0 is the mass of the sma
     print("Initialization done")
     return parr #returns initialized particle array
 
+
 def plotCraterFormation(parr,r0,r):
     N=len(parr)
     print(N)
@@ -68,29 +69,33 @@ def problem4Visualization(N,n,interval,start,m0,r0,m,r,v0,RC):
     print("done")
 
 
-#NB SOMETIMES THE ENERGY INCREASES???????? by a very small factor but still...
-def craterSimulation(N,interval,m0,r0,m,r,v0,RC):
+
+def craterSimulation(parr,N,interval,m0,r0,m,r,v0,RC):
 
     #initialization
-    parr=initParticlesForProjectileImpact(N,m0,r0,m,r,v0)
-    initialEnergy=averageKineticEnergy(parr[:N-1])+avrgEnergyP(parr[N]) #ground particles start with zero kinetic energy!!
-    print("initE",avrgEnergyP(parr[N]))
+    initialEnergy=totKinEnergy(parr) #ground particles start with zero kinetic energy!!
+    print("initE",initialEnergy)
     events=firstCollisions(parr)
     Time=0.0 #set start time to zero
-
     #run simulation
     print("start")
-    while((averageKineticEnergy(parr[:N-1])+avrgEnergyP(parr[N]))>=0.1*initialEnergy): #continue until 10% or less than initial energy
-        print((averageKineticEnergy(parr[:N-1])+avrgEnergyP(parr[N]))/initialEnergy)
+    while((totKinEnergy(parr))>=0.1*initialEnergy): #continue until 10% or less than initial energy
+        print(totKinEnergy(parr)/(initialEnergy))
         Time = runSimulation(interval,events,parr,Time,RC) #run simulation and update time
     print("done")
     return parr
 
+#notes: projectil energy decreases the whole time
+#ground particle energy increases, because they get energy from the projectile
  
-def massCraterSize(masslist,filename,N,interval,m0,r0,r,v0,RC): #masslist is a list of masses to plot for #filename=name of file data is saved to
+
+
+
+
+
+def massCraterSize(initialParr,masslist,filename,N,interval,m0,r0,r,v0,RC): #masslist is a list of masses to plot for #filename=name of file data is saved to
     #initialize array
-    startParr=initParticlesForProjectileImpact(N,m0,r0,1,r,v0) #set m to 1, can change later
-    initialParr=startParr.copy() #saving initial particle array, only positions matter
+    #initialParr=initParticlesForProjectileImpact(N,m0,r0,1,r,v0) #set m to 1, can change later
 
     file=open(filename,"w") #file to write to
 
@@ -98,20 +103,26 @@ def massCraterSize(masslist,filename,N,interval,m0,r0,r,v0,RC): #masslist is a l
     for mass in masslist:
 
         #initialization
-        parr=startParr
+        parr=initialParr.copy() #copy intitial particle array
         parr[N,M]=mass
-        print(parr[N,M])
-        initialEnergy=averageKineticEnergy(parr[:N-1])+avrgEnergyP(parr[N]) #ground particles start with zero kinetic energy!!
+        print("current mass",parr[N,M])
+        initialEnergy=totKinEnergy(parr)
+
         events=firstCollisions(parr)
         Time=0.0 #set start time to zero
 
+        newInterval=int(interval*(mass/m0))
+        print("interval",newInterval)
         #run simulation
         print("start")
-        while((averageKineticEnergy(parr[:N-1])+avrgEnergyP(parr[N]))>=0.1*initialEnergy): #continue until 10% or less than initial energy
-            #print((averageKineticEnergy(parr[:N-1])+avrgEnergyP(parr[N]))/initialEnergy)
-            Time = runSimulation(interval,events,parr,Time,RC) #run simulation and update time
+        while((totKinEnergy(parr))>=0.1*initialEnergy): #continue until 10% or less than initial energy
+            print(totKinEnergy(parr)/(initialEnergy))
+            Time = runSimulation(newInterval,events,parr,Time,RC) #run simulation and update time
+            
+
         crater=craterSize(initialParr,parr)
         file.write(str(crater)) #writing data to file
+        print("data saved")
     file.close()
 
 
@@ -125,7 +136,7 @@ interval=100 #interval between data sampling
 start=0 #start of data sampling
 m0=1 #mass of ground particles
 r0=np.sqrt(1/(N*4*math.pi)) #radius of mass particles
-m=m0*25 #mass of projectile partile (as stated in problem text)
+m=m0*15 #mass of projectile partile (as stated in problem text)
 r=r0*5 #radius of projectile particle
 v0=5 #initial velocity of projectile particle
 RC=0.5
@@ -134,8 +145,22 @@ RC=0.5
 
 #problem4Visualization(N,n,interval,start,m0,r0,m,r,v0,RC)
 
-#craterSimulation(N,interval,m0,r0*0.9,m,r,v0,RC)
+#0.9 for faster init!!!!!
 
-massList=np.linspace(m0,40*m0,10)
 
-massCraterSize(massList,"massVSCraterSize.txt",N,interval,m0,r0,r,v0,RC)
+#massList=np.linspace(m0,40*m0,10)
+
+"""Initializing particle array"""
+#parr=initParticlesForProjectileImpact(N,m0,r0,m,r,v0)
+#np.save("particleArray.npy",parr) #save array as binary file
+
+initParticleArray=np.load("particleArray.npy")
+print("ok")
+
+craterSimulation(initParticleArray,N,interval,m0,r0,m,r,v0,RC)
+
+
+#massCraterSize(initialParr,massList,"massVSCraterSize.txt",N,interval,m0,r0*0.9,r,v0,RC)
+
+
+#code for plotting for different parameters: take parr as input
