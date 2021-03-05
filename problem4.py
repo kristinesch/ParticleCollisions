@@ -83,8 +83,8 @@ def craterVisualization(parr,n,interval,start,RC):
     data=simulationData(parr,n,interval,start,RC) #run simulation
     fig,ax=plt.subplots(2,2)
     N=len(parr)
-    gr=5 #radius for plotting ground particles
-    pr=20 #radius for projectile particle
+    gr=3 #radius for plotting ground particles
+    pr=100 #radius for projectile particle
 
     #first subplot
     parr1=data[0]

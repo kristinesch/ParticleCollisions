@@ -1,5 +1,6 @@
 from simulation import *  
 from functions import *
+from scipy import stats
 
 #average collision number=number of collisions/number of particles
 
@@ -11,20 +12,37 @@ from functions import *
 def problem1(N1,m0,n,interval,start,rc,r0,v0):
     rc=1
     velocities=[]
+    velCorr=[]
     #initialize mass array
     masses1=np.full(N1,m0)
 
     #initialize particle array
     parr1=initParticleArray(N1,masses1,r0,m0,v0,rc)
+    initVel=getVelocities(parr1)
+    histogram(initVel,"initHistp1")
 
     #run simulation
     parrData=simulationData(parr1,n,interval,start,rc)
 
     #Get velocity data, and plot histogram with Maxwell-Boltzmann distribution
     for parr in parrData: #add velocity data to list
+        velCorr.append(getVelocities(parr))
         velocities.extend(getVelocities(parr))
-    print(velocities)
+
+    #plotting histogram and MB 
     HistogramMB(velocities,m0,"problem1")
+    
+    #checking correlation
+    print("Pearson correlation coefficient: ",stats.pearsonr(velCorr[0],velCorr[1]))
+    fig,ax=plt.subplots(1,1)
+    ax.scatter(velCorr[0],velCorr[1],"bo")
+    ax.set_xlabel("velocity data sample 1")
+    ax.set_ylabel("velocity data sample 2")
+    plt.suptitle("Correlation for "+str(N1)+" particles and "+str(interval)+" collisions")
+    fig.savefig("correlationPlot")
+    plt.show()
+
+    
         
 
 
@@ -46,7 +64,7 @@ def problem2(N2,m0,n,r0,v0,rc):
 
     #initial plot
     initialVelocities=getVelocities(particleArray2)
-    histogram(initialVelocities)
+    histogram(initialVelocities,"initHistp2")
 
     #run simulation
     finalParr=simulation(particleArray2,n,RC)
@@ -124,10 +142,10 @@ def problem3(N3,m0,n,interval,start,r0,v0,rc):
 
 
 
-N1=2000
+N1=3000
 m0=1
-n1=20000
-interval1=5000
+n1=30000
+interval1=10000
 start1=10000
 rc=1
 r0=0.001 #must be large enough so that particle particle collisions happen often enough???

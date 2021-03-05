@@ -10,8 +10,14 @@ def getVelocities(Parr):
     return velocities
 
 #plotting histogram of velocities
-def histogram(velocities):
-    plt.hist(velocities,bins=101,density=True)
+def histogram(velocities,filename):#filename is a string containing the name to save the file as
+    fig,ax=plt.subplots(1,1)
+    fig.suptitle("Speed distribution")
+    ax.set_xlabel("Speed")
+    ax.set_ylabel("Number of particles")
+    ax.hist(velocities,bins=41, range=(0,2))
+    fig.savefig(filename)
+    plt.show()
 
 
 #NB 2 degrees 
@@ -27,9 +33,8 @@ def HistogramMB(velocities,m,filename): #filename is a string containing the nam
     fig.suptitle("Speed distribution")
     ax.set_xlabel("Speed")
     ax.set_ylabel("Number of particles")
-    ax.hist(velocities,bins=51,density=True)
+    ax.hist(velocities,bins=91,density=True)
     ax.plot(v,mb)
-    plt.tight_layout()
     fig.savefig(filename)
     plt.show()
     return averageVelocity

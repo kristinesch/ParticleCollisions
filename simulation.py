@@ -310,7 +310,7 @@ def simulationData(particleArray,n,interval,start,RC): #start=number of collisio
     Time=0.0 #set start time to zero
     for i in range(int(n/interval)+1):
         Time = runSimulation(interval,eventQueue,particleArray, Time,RC) #run simulation and update time
-        if (i*interval>=start): #save data
+        if ((i+1)*interval>=start): #save data
             print("data saved")
             data.append(particleArray.copy()) 
     return data
