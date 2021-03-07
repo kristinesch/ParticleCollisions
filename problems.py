@@ -34,8 +34,9 @@ def problem1(N1,m0,n,interval,start,rc,r0,v0):
     
     #checking correlation
     print("Pearson correlation coefficient: ",stats.pearsonr(velCorr[0],velCorr[1]))
+    #correlation plot
     fig,ax=plt.subplots(1,1)
-    ax.scatter(velCorr[0],velCorr[1],"bo")
+    ax.plot(velCorr[0],velCorr[1],"bo")
     ax.set_xlabel("velocity data sample 1")
     ax.set_ylabel("velocity data sample 2")
     plt.suptitle("Correlation for "+str(N1)+" particles and "+str(interval)+" collisions")
@@ -49,9 +50,6 @@ def problem1(N1,m0,n,interval,start,rc,r0,v0):
 """PROBLEM 2"""
 
 def problem2(N2,m0,n,r0,v0,rc):
-    N2=1000
-    m0=1
-    n=10000
 
     #initialize mass array
     masses2=np.full(N2,m0)
@@ -63,19 +61,26 @@ def problem2(N2,m0,n,r0,v0,rc):
     particleArray2=initParticleArray(N2,masses2,r0,m0,v0,rc)
 
     #initial plot
-    initialVelocities=getVelocities(particleArray2)
-    histogram(initialVelocities,"initHistp2")
+    initParrm0=particleArray2[:x]
+    initParr4m0=particleArray2[x:]
+    histogram2(getVelocities(initParrm0),getVelocities(initParr4m0),"p2start")
+    
 
     #run simulation
-    finalParr=simulation(particleArray2,n,RC)
+    finalParr=simulation(particleArray2,n,rc)
 
     #Get arrays corresponding to the light and heavy particles
     Parrm0=finalParr[:x]
     Parr4m0=finalParr[x:]
+    #final plot
+    histogram2(getVelocities(initParrm0),getVelocities(initParr4m0),"p2end")
+    #HistogramMB(getVelocities(initParrm0),m0,"p2m0MB")
+    #HistogramMB(getVelocities(initParr4m0),4*m0,"p24m0MB")
+
 
     #Calculate average kinetic energies and velocities
-    kineticEnergym0,averageVelocitym0=averageKineticEnergyAndVelocity(Parrm0)
-    kineticEnergy4m0,averageVelocity4m0=averageKineticEnergyAndVelocity(Parr4m0)
+    kineticEnergym0,averageVelocitym0=avrgKinEnergyAndVelocity(Parrm0)
+    kineticEnergy4m0,averageVelocity4m0=avrgKinEnergyAndVelocity(Parr4m0)
 
     #printing results
     print("Average velocity for particles with mass m0: ",averageVelocitym0)
@@ -100,44 +105,49 @@ def problem3(N3,m0,n,interval,start,r0,v0,rc):
     kinE4m0=[]
     velm0=[]
     vel4m0=[]
-
+    kinE=[]
+    velAll=[]
     #initialize array
     particleArray3=initParticleArray(N3,masses3,r0,m0,v0,rc)
+
     #run simulation and collect data
-    data=simulationData(particleArray3,n,interval,start,RC)
+    data=simulationData(particleArray3,n,interval,start,rc)
+
 
     #calculate average velocity and kinetic energy and save to lists
     for parr in data:
         Parrm0=parr[:x]
         Parr4m0=parr[x:]
-        Ekm0,vm0=averageKineticEnergyAndVelocity(Parrm0)
-        Ek4m0,v4m0=averageKineticEnergyAndVelocity(Parr4m0)
+        Ekm0,vm0=avrgKinEnergyAndVelocity(Parrm0)
+        Ek4m0,v4m0=avrgKinEnergyAndVelocity(Parr4m0)
+        Ek,vel=avrgKinEnergyAndVelocity(parr)
         kinE4m0.append(Ek4m0)
         kinEm0.append(Ekm0)
         velm0.append(vm0)
         vel4m0.append(v4m0)
+        kinE.append(Ek)
+        velAll.append(vel)
 
-    #plotting kinetic energy:
+    print(kinE)
+    
     timesteps=np.arange(0,n+interval,interval)
-    fig1,ax1=plt.subplots(1,1)
-    fig1.suptitle("Average kinetic energy")
-    ax1.set_xlabel("Number of collisions")
-    ax1.set_ylabel("Kinetic energy")
-    ax1.plot(timesteps,kinE4m0,label="Kinetic Energy of particles with mass 4m0")
-    ax1.plot(timesteps,kinEm0,label="Kinetic Energy of particles with mass m0")
-    ax1.legend()
-    fig1.savefig("KineticEneryPlot")
-    plt.show()
+    fig,ax=plt.subplots(2,1,sharex=True)
+    fig.suptitle("Average kinetic energy and velocity, rc="+str(rc))
+    #plotting kinetic energy:
+    ax[0].set_ylabel("Average kinetic energy")
+    ax[0].plot(timesteps,kinE4m0,label="Particles with mass 4m0")
+    ax[0].plot(timesteps,kinEm0,label="Particles with mass m0")
+    ax[0].plot(timesteps,kinE,label="All particles")
+    ax[0].legend()
 
     #plotting velocities:
-    fig2,ax2=plt.subplots(1,1)
-    fig2.suptitle("Average velocity")
-    ax2.set_xlabel("Number of collisions")
-    ax2.set_ylabel("Velocity")
-    ax2.plot(timesteps,velm0,label="Velocity of particles with mass m0")
-    ax2.plot(timesteps,vel4m0,label="Velocity of particles with mass 4m0")
-    ax2.legend()
-    fig2.savefig("VelocityPlot")
+    ax[1].set_xlabel("Number of collisions")
+    ax[1].set_ylabel("Average velocity")
+    ax[1].plot(timesteps,velm0,label="Particles with mass m0")
+    ax[1].plot(timesteps,vel4m0,label="Particles with mass 4m0")
+    ax[1].plot(timesteps,velAll,label="Particles with mass 4m0")
+    ax[1].legend()
+    fig.savefig("VelocityEkPlot"+str(rc)+".png")
     plt.show()
 
 
@@ -152,9 +162,22 @@ r0=0.001 #must be large enough so that particle particle collisions happen often
 v0=1
 
 
-problem1(N1,m0,n1,interval1,start1,rc,r0,v0)
-#problem2(N2,m0,n,r0,v0,rc)
-#problem3(N3,m0,n,interval,start,r0,v0,rc)
+#problem1(N1,m0,n1,interval1,start1,rc,r0,v0)
+
+N2=3000
+n2=10000
+problem2(N2,m0,n2,r0,v0,rc)
+
+
+N3=3000
+n3=30000
+interval3=300
+start3=0
+# rcList=[0.8,0.9,1]
+# for rc3 in rcList:
+#     problem3(N3,m0,n3,interval3,start3,r0,v0,rc3)
+
+
 
 
 #problem1(2000,1,20000,5000,10000)

@@ -178,14 +178,42 @@ def massCraterSize(initialParr,masslist,N,interval,RC): #masslist is a list of m
     npCrater=np.array(craterData)
     np.save("massCraterData.npy",masslist,npCrater) #save data to binary file
 
+def velocityCraterSize(initialParr,velocityList,N,interval,RC): #masslist is a list of masses to plot for #filename=name of file data is saved to
+    #initialize array
+    #initialParr=initParticlesForProjectileImpact(N,m0,r0,1,r,v0) #set m to 1, can change later
+    print(velocityList)
+    craterData=[]
+    for v in velocityList:
+
+        #initialization
+        parr=initialParr.copy() #copy intitial particle array
+        parr[N,VY]=-v
+        print("current velocity",parr[N,VY])
+        initialEnergy=totKinEnergy(parr)
+
+        events=firstCollisions(parr)
+        Time=0.0 #set start time to zero
+
+        #newInterval=int(interval*(v)) #to make more appropriate intervals
+        #print("interval",newInterval)
+
+        #run simulation
+        print("start")
+        while((totKinEnergy(parr))>=0.1*initialEnergy): #continue until 10% or less than initial energy
+            print(totKinEnergy(parr)/(initialEnergy))
+            Time = runSimulation(interval,events,parr,Time,RC) #run simulation and update time
+        crater=craterSize(initialParr,parr) #calculate crater size
+        craterData.append(crater) 
+    npCrater=np.array(craterData)
+    np.save("velocityCraterData.npy",velocityList,npCrater) #save data to binary file
 
     
 
 
 """values for the different parameters"""
-N=1000 #number of ground particles
+N=500 #number of ground particles
 n=9000 #number of collisions in simulation
-interval=10 #interval between data sampling
+interval=500 #interval between data sampling
 start=0 #start of data sampling
 m0=1#mass of ground particles
 r0=np.sqrt(1/(N*4*math.pi)) #radius of mass particles
@@ -208,20 +236,23 @@ RC=0.5
 #np.save("particleArray.npy",parr) #save array as binary file
 
 initParticleArray=np.load("particleArray.npy")
-# newArray=initParticleArray.copy()
+newArray=initParticleArray.copy()
 # newArray[N,M]=m
 
 
+craterSimulation(newArray,N,100,RC)
 
-#craterSimulation(newArray,N,100,RC)
+#parrC=initParticlesForProjectileImpact(N,m0,r0,m,r,v)
+#craterVisualization(parrC,n,3000,0,RC)
 
-parrC=initParticlesForProjectileImpact(N,m0,r0,m,r,v)
-craterVisualization(parrC,n,3000,0,RC)
 
-#massList=[m0,7.5*m0,15*m0]
-#massCraterSize(initParticleArray,massList,N,interval,RC)
+velocityList=[15,30]
+velocityCraterSize(initParticleArray,velocityList,N,interval,RC)
 
-#plotParameterVsCraterSize("MassCrater.npy","Projectile Mass","MassVsCraterPlot")
+# massList=[m0,7.5*m0,15*m0]
+# massCraterSize(initParticleArray,massList,N,interval,RC)
+
+# plotParameterVsCraterSize("MassCrater.npy","Projectile Mass","MassVsCraterPlot")
 
 
 #code for plotting for different parameters: take parr as input

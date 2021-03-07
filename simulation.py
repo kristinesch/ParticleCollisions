@@ -75,7 +75,7 @@ def initParticleArray(N,masses,r,m,v0,rc,xmin=0,xmax=1,ymin=0,ymax=1): #masses i
                 pos=np.array([random.uniform(r,1-r),random.uniform(r,1-r)])
                 Overlapping=False
                 for posi in occupiedPositions:
-                    if (4*r*r>np.dot((posi-pos),(posi-pos))):
+                    if (4*r*r>np.dot((posi-pos),(posi-pos))): #checking if overlapping, taking radius into account
                         Overlapping=True
                         break
 
@@ -308,7 +308,7 @@ def simulationData(particleArray,n,interval,start,RC): #start=number of collisio
     if (start==0): #copy initial array only if start of sampling set to zero
         data.append(particleArray.copy())
     Time=0.0 #set start time to zero
-    for i in range(int(n/interval)+1):
+    for i in range(int(n/interval)):
         Time = runSimulation(interval,eventQueue,particleArray, Time,RC) #run simulation and update time
         if ((i+1)*interval>=start): #save data
             print("data saved")
