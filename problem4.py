@@ -205,22 +205,23 @@ def velocityCraterSize(initialParr,velocityList,N,interval,RC): #masslist is a l
         crater=craterSize(initialParr,parr) #calculate crater size
         craterData.append(crater) 
     npCrater=np.array(craterData)
-    np.save("velocityCraterData.npy",velocityList,npCrater) #save data to binary file
+    np.save("velocityCraterData.npy",velocityList) #save data to binary file
+    np.save("CraterDataVelocity.npy",npCrater)
 
     
 
 
 """values for the different parameters"""
-N=500 #number of ground particles
-n=9000 #number of collisions in simulation
+N=1000 #number of ground particles
+n=10000 #number of collisions in simulation
 interval=500 #interval between data sampling
 start=0 #start of data sampling
 m0=1#mass of ground particles
 r0=np.sqrt(1/(N*4*math.pi)) #radius of mass particles
-m=m0*25 #mass of projectile partile (as stated in problem text)
+m=m0*15 #mass of projectile particle 
 r=r0*5 #radius of projectile particle
 v=5 #initial velocity of projectile particle
-RC=0.5
+RC=0.6
 
 
 
@@ -232,27 +233,27 @@ RC=0.5
 #massList=np.linspace(m0,30*m0,5)
 
 """Initializing particle array"""
-#parr=initParticlesForProjectileImpact(N,m0,r0,m,r,v)
-#np.save("particleArray.npy",parr) #save array as binary file
+# parr=initParticlesForProjectileImpact(N,m0,r0,m,r,v)
+# np.save("particleArray.npy",parr) #save array as binary file
 
 initParticleArray=np.load("particleArray.npy")
-newArray=initParticleArray.copy()
-# newArray[N,M]=m
+# newArray=initParticleArray.copy()
+# # newArray[N,M]=m
 
 
-craterSimulation(newArray,N,100,RC)
+# craterSimulation(newArray,N,100,RC)
 
-#parrC=initParticlesForProjectileImpact(N,m0,r0,m,r,v)
-#craterVisualization(parrC,n,3000,0,RC)
+# #parrC=initParticlesForProjectileImpact(N,m0,r0,m,r,v)
+# #craterVisualization(parrC,n,3000,0,RC)
 
 
-velocityList=[15,30]
+velocityList=[1,4,7,10,13,16,19,22,25]
 velocityCraterSize(initParticleArray,velocityList,N,interval,RC)
 
 # massList=[m0,7.5*m0,15*m0]
 # massCraterSize(initParticleArray,massList,N,interval,RC)
 
-# plotParameterVsCraterSize("MassCrater.npy","Projectile Mass","MassVsCraterPlot")
+plotParameterVsCraterSize("VelocityCraterData.npy","CraterDataVelocity.npy","Projectile Speed","SpeedVsCraterPlot")
 
 
 #code for plotting for different parameters: take parr as input
